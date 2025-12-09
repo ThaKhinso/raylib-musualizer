@@ -59,7 +59,7 @@ dkms.conf
 *.user
 *.aps
 .vs
-
+build/
 # Clangd LSP
 .cache
 compile_commands.json
@@ -78,3 +78,5 @@ android.*
 *.js
 !src/minshell.html
 !src/shell.html
+miku_marshmellow.mp4
+miku_marshmellow.webm

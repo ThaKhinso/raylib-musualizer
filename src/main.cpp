@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <complex>
+#include <math.h>
 // #if defined(PLATFORM_WEB)
 //     #include <emscripten/emscripten.h>
 // #endif
@@ -21,7 +23,10 @@ typedef struct {
     float left;
     float right;
 }Frame;
-
+#define N 256
+float in[N] = {0};
+std::complex<float> out[N] = {0};
+float max_amp = 0;
 static const int screenWidth = 800;
 static const int screenHeight = 450;
 Frame global_frames[4800*2] = {0};
@@ -30,24 +35,54 @@ size_t global_frames_count = 0;
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
-void callback(void *bufferData, unsigned int frames) {
-  size_t capacity = ARRAY_LEN(global_frames);
-  if (frames <= capacity - global_frames_count) {
-    memcpy(global_frames + global_frames_count, bufferData, frames * sizeof(Frame));
-    global_frames_count += frames;
-  } else if (frames <= capacity) {
-    memmove(global_frames, global_frames + frames,
-            sizeof(Frame) * (capacity - frames));
-    memcpy(global_frames + (capacity - frames), bufferData,
-           sizeof(Frame) * frames);
-  } else {
-    memcpy(global_frames, bufferData, sizeof(Frame) * capacity);
-    global_frames_count = capacity;
-  } 
-  // printf("callback(frames = %u)\n", frames);
+void fft(float in[], size_t stride, std::complex<float> out[], size_t n) {
+  assert(n > 0);
+  if (n == 1) {
+    out[0] = in[0];
+    return;
+  }
+  fft(in, stride * 2, out, n / 2);
+  fft(in + stride, stride * 2, out + n / 2, n / 2);
+  for (size_t k = 0; k < n / 2; k++) {
+    float t = (float)k / n;
+    std::complex<float> v =
+        exp(-2.0f * std::complex<float>(0, 1) * PI * t) * out[k + n / 2];
+    std::complex<float> e = out[k];
+    out[k] = e + v;
+    out[k + n / 2] = e - v;
+  }
 }
 
-//----------------------------------------------------------------------------------
+float amp(std::complex<float> z) {
+  float a = fabsf(std::real<float>(z));
+  float b = fabsf(std::imag<float>(z));
+  if (a < b) return b;
+  return a;
+}
+
+void callback(void *bufferData, unsigned int frames) {
+  if (frames < N) {
+    return;
+  }
+
+  Frame *fframes = (Frame*)bufferData;
+
+  for (size_t i = 0; i < frames; i++) {
+    in[i] = fframes[i].left;
+  }
+  fft(in, 1, out, N);
+
+  for (size_t i = 0; i < frames; i++) {
+    float a = amp(out[i]);
+    if (a > max_amp) {
+      max_amp = a;
+    }
+  }
+
+}
+
+
+    //----------------------------------------------------------------------------------
 // Program main entry point
 //----------------------------------------------------------------------------------
 int main(void) {
@@ -89,18 +124,24 @@ int main(void) {
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
-    float cell_width = (float)screenWidth / global_frames_count;
-    for (size_t i = 0; i < global_frames_count; i++) {
-        float t = global_frames[i].left;
-      if (t > 0) {
-        /*float t = (float)sample / SINGLE_SAMPLE_MAX;*/
-        DrawRectangle(i * cell_width, screenHeight / 2 - screenHeight / 2 * t,
-                      1, screenHeight / 2 * t, RED);
-      } else {
-        /*float t = (float)sample / SINGLE_SAMPLE_MIN; */
-        DrawRectangle(i * cell_width, screenHeight/2, 1, screenHeight / 2 * t, RED);
-      }
+    float cell_width = (float)screenWidth / N;
+    for (size_t i = 0; i < N; i++) {
+      float t = amp(out[i])/ max_amp;
+      DrawRectangle(i * cell_width, screenHeight / 2 - screenHeight / 2 * t, cell_width,
+                    screenHeight / 2 * t, RED);
     }
+
+    //for (size_t i = 0; i < global_frames_count; i++) {
+    //    float t = global_frames[i].left;
+    //  if (t > 0) {
+    //    /*float t = (float)sample / SINGLE_SAMPLE_MAX;*/
+    //    DrawRectangle(i * cell_width, screenHeight / 2 - screenHeight / 2 * t,
+    //                  1, screenHeight / 2 * t, RED);
+    //  } else {
+    //    /*float t = (float)sample / SINGLE_SAMPLE_MIN; */
+    //    DrawRectangle(i * cell_width, screenHeight/2, 1, screenHeight / 2 * t, RED);
+    //  }
+    //}
     // DrawText("Congrats! You created your first window!", 190, 200, 20,
     // LIGHTGRAY); if(global_frames_count > 0) exit(1);
     EndDrawing();

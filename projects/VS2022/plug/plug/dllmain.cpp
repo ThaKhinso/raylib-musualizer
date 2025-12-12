@@ -7,7 +7,8 @@ int add(int a, int b) {
     return a + b;
 }
 
-__declspec(dllexport) void plug_hello(void) {
+extern "C" __declspec(dllexport) 
+void plug_hello(void) {
     printf("Hello from dll\n");
 }
 

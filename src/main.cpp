@@ -1,3 +1,4 @@
+
 #include "raylib.h"
 #include <assert.h>
 #include <complex>
@@ -6,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "plug.h"
+#include "double_plug.h"
 // #if defined(PLATFORM_WEB)
 //     #include <emscripten/emscripten.h>
 // #endif
@@ -28,10 +29,10 @@ typedef struct {
 float in[N] = {0};
 std::complex<float> out[N] = {0};
 float max_amp = 0;
+
+
 static const int screenWidth = 800;
 static const int screenHeight = 450;
-Frame global_frames[4800 * 2] = {0};
-size_t global_frames_count = 0;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -90,14 +91,16 @@ char *shit_args(int *argc, char ***argv) {
   return result;
 }
 
+
+
 //----------------------------------------------------------------------------------
 // Program main entry point
 //----------------------------------------------------------------------------------
 int main(int argc, char **argv) {
   // Initialization
   //---------------------------------------------------------
-  plug_hello();
-  return 0;
+    
+  return call();
 
   const char *program = shit_args(&argc, &argv);
   if (argc == 0) {

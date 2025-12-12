@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raylib", "raylib\raylib.vcxproj", "{E89D61AC-55DE-4482-AFD4-DF7242EBC859}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "musualizer", "raylib_game\raylib_game.vcxproj", "{0981CA98-E4A5-4DF1-987F-A41D09131EFC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60} = {B9B91563-02F8-4B7D-B45C-26A1C717AE60}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plug", "plug\plug\plug.vcxproj", "{B9B91563-02F8-4B7D-B45C-26A1C717AE60}"
 	ProjectSection(ProjectDependencies) = postProject

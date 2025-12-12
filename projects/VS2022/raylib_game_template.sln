@@ -5,7 +5,12 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raylib", "raylib\raylib.vcxproj", "{E89D61AC-55DE-4482-AFD4-DF7242EBC859}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raylib_game", "raylib_game\raylib_game.vcxproj", "{0981CA98-E4A5-4DF1-987F-A41D09131EFC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "musualizer", "raylib_game\raylib_game.vcxproj", "{0981CA98-E4A5-4DF1-987F-A41D09131EFC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plug", "plug\plug\plug.vcxproj", "{B9B91563-02F8-4B7D-B45C-26A1C717AE60}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E89D61AC-55DE-4482-AFD4-DF7242EBC859} = {E89D61AC-55DE-4482-AFD4-DF7242EBC859}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +56,22 @@ Global
 		{0981CA98-E4A5-4DF1-987F-A41D09131EFC}.Release|x64.Build.0 = Release|x64
 		{0981CA98-E4A5-4DF1-987F-A41D09131EFC}.Release|x86.ActiveCfg = Release|Win32
 		{0981CA98-E4A5-4DF1-987F-A41D09131EFC}.Release|x86.Build.0 = Release|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug.DLL|x64.ActiveCfg = Debug|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug.DLL|x64.Build.0 = Debug|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug.DLL|x86.ActiveCfg = Debug|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug.DLL|x86.Build.0 = Debug|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug|x64.ActiveCfg = Debug|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug|x64.Build.0 = Debug|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug|x86.ActiveCfg = Debug|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Debug|x86.Build.0 = Debug|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release.DLL|x64.ActiveCfg = Release|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release.DLL|x64.Build.0 = Release|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release.DLL|x86.ActiveCfg = Release|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release.DLL|x86.Build.0 = Release|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release|x64.ActiveCfg = Release|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release|x64.Build.0 = Release|x64
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release|x86.ActiveCfg = Release|Win32
+		{B9B91563-02F8-4B7D-B45C-26A1C717AE60}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

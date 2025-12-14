@@ -100,8 +100,8 @@ int main(int argc, char **argv) {
   // Initialization
   //---------------------------------------------------------
     
-  return call();
-
+  call();
+  return 0;
   const char *program = shit_args(&argc, &argv);
   if (argc == 0) {
     fprintf(stderr, "Usage: %s <input>\n", program);
@@ -116,18 +116,8 @@ int main(int argc, char **argv) {
   SetTargetFPS(60);
 
   InitAudioDevice();
-  Music music = LoadMusicStream(file_path);
-
-  assert(music.stream.sampleSize == 32);
-  assert(music.stream.channels == 2);
-  printf("Music framecounts = %u\n", music.frameCount);
-  printf("Music stream sample rate = %u\n", music.stream.sampleRate);
-  printf("Music stream sample size = %u\n", music.stream.sampleSize);
-  printf("Music stream sample channels = %u\n", music.stream.channels);
-  music.looping = false;
-  PlayMusicStream(music);
-  SetMusicVolume(music, 0.5f);
-  AttachAudioStreamProcessor(music.stream, callback);
+  
+  init(file_path);
   // #if defined(PLATFORM_WEB)
   //     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
   // #else

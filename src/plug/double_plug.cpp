@@ -1,16 +1,18 @@
 #include "double_plug.h"
 #include "plug.h"
 #include <assert.h>
+#include <cstddef>
 
 typedef struct {
     float left;
     float right;
 } Frame;
-
+#define N (1 << 13)
 float in[N] = { 0 };
 std::complex<float> out[N] = { 0 };
 float max_amp = 0;
 
+int counter = 0;
 
 void fft(float in[], size_t stride, std::complex<float> out[], size_t n) {
     assert(n > 0);
@@ -52,6 +54,15 @@ void callback(void* bufferData, unsigned int frames) {
     
 }
 
+void m_post_reload(void* s) {
+    Plug* state = (Plug*)s;
+    AttachAudioStreamProcessor(state->music.stream, callback);
+};
+
+void m_pre_reload(void* s) {
+    Plug* state = (Plug*)s;
+    DetachAudioStreamProcessor(state->music.stream, callback);
+};
 
 void m_plug_init(void* s, const char* file_path) {
     Plug* state = (Plug*)s;
@@ -69,9 +80,9 @@ void m_plug_init(void* s, const char* file_path) {
 	printf("state->music stream sample rate = %u\n", state->music.stream.sampleRate);
 	printf("state->music stream sample size = %u\n", state->music.stream.sampleSize);
 	printf("state->music stream sample channels = %u\n", state->music.stream.channels);
-	state->music.looping = false;
+	//state->music.looping = false;
 	PlayMusicStream(state->music);
-	SetMusicVolume(state->music, 0.5f);
+	SetMusicVolume(state->music, 0.25f);
 
     printf("entering the callback\n");
     AttachAudioStreamProcessor(state->music.stream, callback);
@@ -84,6 +95,7 @@ int screenHeight = 450;
 
 
 void m_plug_update(void* s) {
+    counter = counter + 1;
     Plug* state = (Plug*)s;
     UpdateMusicStream(state->music);
     if (IsKeyPressed(KEY_SPACE)) {
@@ -94,7 +106,7 @@ void m_plug_update(void* s) {
             ResumeMusicStream(state->music);
         }
     }
-    fft(in, 1, out, N);
+    if(counter %10){fft(in, 1, out, N);}
 
     for (size_t i = 0; i < N; i++) {
         float a = amp(out[i]);
@@ -102,19 +114,31 @@ void m_plug_update(void* s) {
             max_amp = a;
         }
     }
+    float step = 1.06;
+    size_t m =0;
+    for (float f = 20.0f; (size_t)f < N; f *= step) {
+        m += 1;
+    }
 
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
     
-    
-
-    float cell_width = (float)screenWidth / N;
-    for (size_t i = 0; i < N; i++) {
-        float t = amp(out[i]) / max_amp;
-        
-        DrawRectangle(i * cell_width, screenHeight / 2 - screenHeight / 2 * t,
-            cell_width, screenHeight / 2 * t, RED);
+    // printf("m is %d\n", m);
+    m = 0;
+    float cell_width = 2000;//(float)screenWidth / m;
+    for (float f = 20.0f; (size_t)f < N; f *= step) {
+        float f1 = f * step;
+        float a = 0.f;
+        for(size_t q = (size_t)f; q < N && q < (size_t) f1; ++q) {
+            a += amp(out[q]);
+        }
+        a /= (size_t)f1 - (size_t)f + 1;
+        // printf("%f, %f", in[i], out[i]);
+        float t = a / max_amp;
+        DrawRectangle(m * cell_width, screenHeight / 2 - screenHeight / 2 * t,
+            cell_width, screenHeight / 2 * t, GREEN);
+            m += 1;
     }
 
     // for (size_t i = 0; i < global_frames_count; i++) {

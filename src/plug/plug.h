@@ -1,5 +1,5 @@
 #pragma once
-#define N 256
+
 #include "raylib.h"
 #include <complex>
 
@@ -15,3 +15,5 @@ typedef void (*add_t)(int, int);
 typedef void (*plug_hello_t)(void);
 typedef void (*plug_init_t)(void* state, const char* file_path);
 typedef void (*plug_update_t)(void* state);
+typedef void (*plug_post_reload_t)(void* state);
+typedef void (*plug_pre_reload_t)(void* state);

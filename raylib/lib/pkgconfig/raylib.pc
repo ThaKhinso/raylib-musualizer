@@ -1,4 +1,4 @@
-prefix=D:/Program Files (x86)/raylib
+prefix=C:/Program Files (x86)/raylib
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

@@ -11,6 +11,7 @@ set RAYLIB=raylib
 
 REM ==== BUILD ====
 %GPP% -shared ^
+    -static-libgcc -static-libstdc++ ^
     -I"%RAYLIB%\include" ^
     src\plug\*.cpp ^
     -L"%RAYLIB%\lib" ^

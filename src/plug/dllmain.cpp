@@ -23,3 +23,11 @@ MY_DLL void plug_init(void* state, const char* file_path) {
 MY_DLL void plug_update(void* state) {
     m_plug_update(state);
 }
+
+MY_DLL void plug_pre_reload(void* state) {
+    m_pre_reload(state);
+}
+
+MY_DLL void plug_post_reload(void* state) {
+    m_post_reload(state);
+}

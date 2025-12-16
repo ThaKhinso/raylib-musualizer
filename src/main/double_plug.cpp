@@ -10,6 +10,9 @@ typedef HINSTANCE HMODULE;
 
 plug_init_t plug_init = NULL;
 plug_update_t plug_update = NULL;
+
+plug_post_reload_t plug_post_reload = NULL;
+plug_pre_reload_t plug_pre_reload = NULL;
 Plug state = {0};
 
 const char* libplug = "libplug_loaded.dll";
@@ -29,13 +32,27 @@ void loadSymbols() {
 		printf("can't find update function\n");
 		
 	}
+
+	plug_pre_reload = (plug_pre_reload_t)findsymbol(handle, "plug_pre_reload");
+	if (plug_pre_reload == NULL) {
+		printf("can't find update function\n");
+		
+	}
+	plug_post_reload = (plug_post_reload_t)findsymbol(handle, "plug_post_reload");
+	if (plug_post_reload == NULL) {
+		printf("can't find update function\n");
+		
+	}
 }
 
 void reloadDLL() {
 	PauseMusicStream(state.music);
+	plug_pre_reload(&state);
 	printf("before unloading: %p\n", handle);
 	plug_init = NULL;
 	plug_update = NULL;
+	plug_post_reload = NULL;
+	plug_pre_reload = NULL;
 	unloadlibrary((void*)handle);
 	printf("after unloading 1\n");
 	if (!deletefile("libplug_loaded.dll")) {
@@ -48,6 +65,7 @@ void reloadDLL() {
 	handle = (HMODULE)loadlibrary(libplug);
 	printf("after unloading: %p\n", handle);
 	loadSymbols();
+	plug_post_reload(&state);
 	PlayMusicStream(state.music);
 }
 

@@ -2,6 +2,7 @@
 #include "plug.h"
 #include <assert.h>
 #include <cstddef>
+#include <string.h>
 
 typedef struct {
     float left;
@@ -41,14 +42,13 @@ float amp(std::complex<float> z) {
 }
 
 void callback(void* bufferData, unsigned int frames) {
-    if (frames < N) {
-        return;
-    }
+    
 
-    Frame* fframes = (Frame*)bufferData;
+    float (*fframes)[2] = (float*)bufferData;
 
     for (size_t i = 0; i < frames; i++) {
-        in[i] = fframes[i].left;
+        memmove(in, in+1, (N - 1)*sizeof(in[0]));
+        in[N-1] = fframes[i][0];
         //printf("data: %0.7f", fframes[i].right);
     }
     
@@ -67,9 +67,6 @@ void m_pre_reload(void* s) {
 void m_plug_init(void* s, const char* file_path) {
     Plug* state = (Plug*)s;
 	state->music = LoadMusicStream(file_path);
-    /*if (!state->music) {
-        printf("Loading music failed\n");
-    }*/
     max_amp = 0;
 
 
@@ -106,8 +103,29 @@ void m_plug_update(void* s) {
             ResumeMusicStream(state->music);
         }
     }
-    if(counter %10){fft(in, 1, out, N);}
 
+    if(IsFileDropped()) {
+        FilePathList droppedFiles = LoadDroppedFiles();
+        const char* loadedfile = droppedFiles.paths[0];
+        DetachAudioStreamProcessor(state->music.stream, callback);
+        StopMusicStream(state->music);
+        UnloadMusicStream(state->music);
+        state->music = LoadMusicStream(loadedfile);
+        PlayMusicStream(state->music);
+        AttachAudioStreamProcessor(state->music.stream, callback);
+        // printf("dropped:\n");
+        // for(int i = 0; i < droppedFiles.count; i++) {
+        //     printf("dropped files: %s\n", droppedFiles.paths[i]);
+        // }
+        UnloadDroppedFiles(droppedFiles);
+    }
+
+    if(IsKeyPressed(KEY_Q)) {
+        StopMusicStream(state->music);
+        PlayMusicStream(state->music);
+    }
+    fft(in, 1, out, N);
+    float max_amp = 0.f;
     for (size_t i = 0; i < N; i++) {
         float a = amp(out[i]);
         if (a > max_amp) {
@@ -122,11 +140,11 @@ void m_plug_update(void* s) {
 
     BeginDrawing();
 
-    ClearBackground(RAYWHITE);
+    ClearBackground(GetColor(0x151515FF));
     
     // printf("m is %d\n", m);
+    float cell_width = (float)screenWidth / m;
     m = 0;
-    float cell_width = 2000;//(float)screenWidth / m;
     for (float f = 20.0f; (size_t)f < N; f *= step) {
         float f1 = f * step;
         float a = 0.f;
@@ -137,25 +155,12 @@ void m_plug_update(void* s) {
         // printf("%f, %f", in[i], out[i]);
         float t = a / max_amp;
         DrawRectangle(m * cell_width, screenHeight / 2 - screenHeight / 2 * t,
-            cell_width, screenHeight / 2 * t, GREEN);
-            m += 1;
+           cell_width, screenHeight / 2 * t, GREEN);
+        // DrawCircle(m * cell_width, screenHeight / 2,
+        // screenHeight / 2 * t, GREEN);
+             m += 1;
     }
 
-    // for (size_t i = 0; i < global_frames_count; i++) {
-    //     float t = global_frames[i].left;
-    //   if (t > 0) {
-    //     /*float t = (float)sample / SINGLE_SAMPLE_MAX;*/
-    //     DrawRectangle(i * cell_width, screenHeight / 2 - screenHeight / 2 *
-    //     t,
-    //                   1, screenHeight / 2 * t, RED);
-    //   } else {
-    //     /*float t = (float)sample / SINGLE_SAMPLE_MIN; */
-    //     DrawRectangle(i * cell_width, screenHeight/2, 1, screenHeight / 2 *
-    //     t, RED);
-    //   }
-    // }
-    //  DrawText("Congrats! You created your first window!", 190, 200, 20,
-    //  LIGHTGRAY); if(global_frames_count > 0) exit(1);
     EndDrawing();
 }
 

@@ -11,9 +11,7 @@ typedef HINSTANCE HMODULE;
 #ifdef HOTRELOAD
 #define PLUG(name) name##_t name = NULL;
 #else
-// #define PLUG(name) extern name##_t name;
-#define PLUG(name) extern "C" void name(void* state, ...);
-//#define PLUG(name) extern "C" void name(void* state, ...);
+#define PLUG(name) extern "C" void name(...);
 #endif
 LIST_OF_PLUGS
 #undef PLUG
@@ -44,7 +42,7 @@ void loadSymbols() {
 #ifdef HOTRELOAD
 void reloadDLL() {
 	//PauseMusicStream(state.music);
-	plug_pre_reload(&state);
+	void* state = plug_pre_reload();
 	printf("before unloading: %p\n", handle);
 	#define PLUG(name) name = NULL;
 	LIST_OF_PLUGS
@@ -85,11 +83,11 @@ int init(const char* song_name) {
 	handle = (HMODULE)loadlibrary(libplug);
 	loadSymbols();
 	#endif
-	plug_init(&state, song_name);
+	plug_init(song_name);
 	return 0;
 }
 
 int update() {
-	plug_update(&state);
+	plug_update();
 	return 0;
 }

@@ -8,7 +8,7 @@ typedef struct {
     float left;
     float right;
 } Frame;
-#define N (1 << 14)
+#define N (1 << 13)
 float in[N] = { 0 };
 std::complex<float> out[N] = { 0 };
 float max_amp = 0;
@@ -44,11 +44,11 @@ float amp(std::complex<float> z) {
 void callback(void* bufferData, unsigned int frames) {
     
 
-    Frame* fframes = (Frame*)bufferData;
+    float (*fframes)[2] = (float*)bufferData;
 
     for (size_t i = 0; i < frames; i++) {
         memmove(in, in+1, (N - 1)*sizeof(in[0]));
-        in[N-1] = fframes[i].left;
+        in[N-1] = fframes[i][0];
         //printf("data: %0.7f", fframes[i].right);
     }
     
@@ -104,6 +104,22 @@ void m_plug_update(void* s) {
         }
     }
 
+    if(IsFileDropped()) {
+        FilePathList droppedFiles = LoadDroppedFiles();
+        const char* loadedfile = droppedFiles.paths[0];
+        DetachAudioStreamProcessor(state->music.stream, callback);
+        StopMusicStream(state->music);
+        UnloadMusicStream(state->music);
+        state->music = LoadMusicStream(loadedfile);
+        PlayMusicStream(state->music);
+        AttachAudioStreamProcessor(state->music.stream, callback);
+        // printf("dropped:\n");
+        // for(int i = 0; i < droppedFiles.count; i++) {
+        //     printf("dropped files: %s\n", droppedFiles.paths[i]);
+        // }
+        UnloadDroppedFiles(droppedFiles);
+    }
+
     if(IsKeyPressed(KEY_Q)) {
         StopMusicStream(state->music);
         PlayMusicStream(state->music);
@@ -139,7 +155,7 @@ void m_plug_update(void* s) {
         // printf("%f, %f", in[i], out[i]);
         float t = a / max_amp;
         DrawRectangle(m * cell_width, screenHeight / 2 - screenHeight / 2 * t,
-           cell_width, screenHeight / 2 * t, RED);
+           cell_width, screenHeight / 2 * t, GREEN);
         // DrawCircle(m * cell_width, screenHeight / 2,
         // screenHeight / 2 * t, GREEN);
              m += 1;
